@@ -12,10 +12,19 @@ if not os.path.exists("game_data.csv"):
     st.warning("No data yet! Play the game first.")
     st.stop()
 
-# Load data ONCE
+# Load data ONCE (FIXED)
 @st.cache_data
 def load_data():
-    return pd.read_csv("game_data.csv")
+    df = pd.read_csv("game_data.csv", header=None)
+
+    # Ensure correct columns
+    if df.shape[1] == 4:
+        df.columns = ["score", "level", "lives", "time"]
+    else:
+        st.error("CSV format incorrect!")
+        st.stop()
+
+    return df
 
 df = load_data()
 
@@ -25,21 +34,25 @@ if df.empty:
 
 st.dataframe(df)
 
-# Score Trend
+# 📈 Score Trend
 st.subheader("Score Trend")
 fig1, ax1 = plt.subplots()
 ax1.plot(df["score"])
+ax1.set_xlabel("Game Sessions")
+ax1.set_ylabel("Score")
 ax1.set_title("Score Over Time")
 st.pyplot(fig1)
 
-# Level vs Score
+# 📊 Level vs Score
 st.subheader("Level vs Score")
 fig2, ax2 = plt.subplots()
 ax2.scatter(df["level"], df["score"])
+ax2.set_xlabel("Level")
+ax2.set_ylabel("Score")
 ax2.set_title("Level vs Score")
 st.pyplot(fig2)
 
-# Stats
+# 📊 Stats
 st.subheader("Statistics")
 st.write("Average Score:", df["score"].mean())
 st.write("Max Score:", df["score"].max())
